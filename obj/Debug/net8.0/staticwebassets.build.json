@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "RgUkJzAUXaq1OQ6Fu/Q8W7hf0Xu0jErYbg5vuvz6v9A=",
+  "Source": "signaling-server-webrtc",
+  "BasePath": "_content/signaling-server-webrtc",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "signaling-server-webrtc/wwwroot",
+      "Source": "signaling-server-webrtc",
+      "ContentRoot": "/home/nguyengiang/Documents/signaling-server-webrtc/wwwroot/",
+      "BasePath": "_content/signaling-server-webrtc",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/home/nguyengiang/Documents/signaling-server-webrtc/wwwroot/index.html",
+      "SourceId": "signaling-server-webrtc",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/nguyengiang/Documents/signaling-server-webrtc/wwwroot/",
+      "BasePath": "_content/signaling-server-webrtc",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/index.html"
+    }
+  ]
+}

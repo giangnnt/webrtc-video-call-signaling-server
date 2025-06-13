@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "/home/nguyengiang/Documents/signaling-server-webrtc/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.signaling-server-webrtc.props",
+      "PackagePath": "build\\signaling-server-webrtc.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.signaling-server-webrtc.props",
+      "PackagePath": "buildMultiTargeting\\signaling-server-webrtc.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.signaling-server-webrtc.props",
+      "PackagePath": "buildTransitive\\signaling-server-webrtc.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.signaling-server-webrtc.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

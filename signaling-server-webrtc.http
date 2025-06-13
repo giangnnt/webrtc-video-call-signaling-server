@@ -1,0 +1,6 @@
+@signaling_server_webrtc_HostAddress = http://localhost:5118
+
+GET {{signaling_server_webrtc_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
