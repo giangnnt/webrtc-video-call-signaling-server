@@ -40,3 +40,4 @@
 /home/nguyengiang/Documents/signaling-server-webrtc/obj/Debug/net8.0/signaling-server-webrtc.genruntimeconfig.cache
 /home/nguyengiang/Documents/signaling-server-webrtc/obj/Debug/net8.0/ref/signaling-server-webrtc.dll
 /home/nguyengiang/Documents/signaling-server-webrtc/bin/Debug/net8.0/signaling-server-webrtc.staticwebassets.runtime.json
+/home/nguyengiang/Documents/signaling-server-webrtc/obj/Debug/net8.0/signaling-server-webrtc.sourcelink.json

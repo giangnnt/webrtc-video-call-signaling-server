@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "netcoredbg",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/bin/Debug/net8.0/signaling-server-webrtc.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "justMyCode": false,
+      "pipeTransport": {
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "bash",
+        "pipeArgs": ["-c"],
+        "debuggerPath": "/home/nguyengiang/Downloads/netcoredbg-linux-amd64/netcoredbg/netcoredbg",
+        "debuggerArgs": ["--interpreter=vscode"],
+        "quoteArgs": true
+      },
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "logging": {
+        "moduleLoad": false,
+        "diagnosticsLog": {
+          "protocolMessages": true
+        }
+      }
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
