@@ -95,13 +95,12 @@ public class SfuConnection
                     var trickleParams = root.GetProperty("params");
                     var candidate = trickleParams.GetProperty("candidate").ToString();
                     var target = trickleParams.GetProperty("target").GetInt32();
-                    await ForwardToClientAsync("ReceiveIceCandidate", candidate);
+                    await ForwardToClientAsync("ReceiveIceCandidate", trickleParams.ToString());
                     break;
                 case "offer":
                     {
                         var offerParams = root.GetProperty("params").ToString(); // get offer params
                         // Forward to client
-                        _logger.LogInformation($"Received offer: {offerParams}");
                         await ForwardToClientAsync("ReceiveOffer", offerParams);
                         break;
                     }
@@ -120,11 +119,11 @@ public class SfuConnection
                 switch (type)
                 {
                     case "answer":
-                        await ForwardToClientAsync("ReceiveAnswer", sdp);
+                        await ForwardToClientAsync("ReceiveAnswer", resultProp.ToString());
                         break;
-                    case "offer":
-                        await ForwardToClientAsync("ReceiveOffer", sdp);
-                        break;
+                    // case "offer":
+                    //     await ForwardToClientAsync("ReceiveOffer", sdp);
+                    //     break;
                     default:
                         _logger.LogError($"Unhandled result type: {type}");
                         break;
@@ -146,15 +145,7 @@ public class SfuConnection
     {
         try
         {
-            if (clientMethod == "ReceiveOffer")
-            {
-                await _hubContext.Clients.Client(SignalingHub._latestPeerJoinedRoom[_roomId]).SendAsync(clientMethod, _connectionId, sdp);
-                _logger.LogInformation($"Forwarded offer to {SignalingHub._latestPeerJoinedRoom[_roomId]}");
-            }
-            else
-            {
-                await _hubContext.Clients.Client(_connectionId).SendAsync(clientMethod, _connectionId, sdp);
-            }
+            await _hubContext.Clients.Client(_connectionId).SendAsync(clientMethod, _connectionId, sdp);
         }
         catch (Exception ex)
         {
@@ -190,6 +181,7 @@ public class SfuConnection
             Uid = userId,
             Offer = sdpObject
         };
+
         // create rpc request
         var joinRequest = new JsonRpcRequest<JoinParams>(
             id: GetNextId(),
