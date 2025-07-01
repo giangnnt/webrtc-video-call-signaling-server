@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("signaling-server-webrtc")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7948fa6017c780c08d4af243fc0c8b7b060b7a6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63d16fd4a503f515671a76069d8180cd9ee43761")]
 [assembly: System.Reflection.AssemblyProductAttribute("signaling-server-webrtc")]
 [assembly: System.Reflection.AssemblyTitleAttribute("signaling-server-webrtc")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

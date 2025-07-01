@@ -16,6 +16,10 @@ public class SfuConnection
     private string _roomId = string.Empty;
     private readonly IHubContext<SignalingHub> _hubContext;
 
+    private int _iceCount = 0;
+
+    private bool isInited = true;
+
     public SfuConnection(ClientWebSocket ws, ILogger logger, IHubContext<SignalingHub> hubContext)
     {
         _ws = ws;
@@ -24,6 +28,7 @@ public class SfuConnection
     }
 
     public void SetConnectionId(string connectionId)
+
     {
         _connectionId = connectionId;
     }
@@ -53,10 +58,10 @@ public class SfuConnection
     private async Task ReceiveLoopAsync()
     {
         var buffer = new byte[8192];
-        var messageBuffer = new List<byte>();
 
         while (_ws.State == WebSocketState.Open)
         {
+            using var ms = new MemoryStream();
             WebSocketReceiveResult result;
 
             do
@@ -68,42 +73,48 @@ public class SfuConnection
                     return;
                 }
 
-                messageBuffer.AddRange(buffer.Take(result.Count));
+                ms.Write(buffer, 0, result.Count);
             }
             while (!result.EndOfMessage);
 
-            var json = Encoding.UTF8.GetString(messageBuffer.ToArray());
-            messageBuffer.Clear();
-
+            var json = Encoding.UTF8.GetString(ms.ToArray());
             await HandleIncomingJsonRpc(json);
         }
     }
+
 
 
     private async Task HandleIncomingJsonRpc(string json)
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
+        _logger.LogInformation($"Received JSON-RPC message: {json}");
 
         if (root.TryGetProperty("method", out var methodProp))
         {
             var method = methodProp.GetString();
-
             switch (method)
             {
                 case "trickle":
+                    _iceCount++;
+                    _logger.LogInformation($"[ICE] Trickle #{_iceCount}");
                     var trickleParams = root.GetProperty("params");
-                    var candidate = trickleParams.GetProperty("candidate").ToString();
-                    var target = trickleParams.GetProperty("target").GetInt32();
-                    await ForwardToClientAsync("ReceiveIceCandidate", trickleParams.ToString());
+                    _ = _hubContext.Clients.Client(_connectionId).SendAsync("ReceiveIceCandidate", _connectionId, trickleParams.ToString(), isInited);
+
                     break;
                 case "offer":
+                    if (isInited)
                     {
-                        var offerParams = root.GetProperty("params").ToString(); // get offer params
-                        // Forward to client
-                        await ForwardToClientAsync("ReceiveOffer", offerParams);
-                        break;
+                        isInited = false;
                     }
+
+                    var offerParamsElement = root.GetProperty("params");
+
+                    // Forward to client
+                    await _hubContext.Clients.Client(_connectionId).SendAsync("ReceiveOffer", _connectionId, offerParamsElement.ToString());
+                    break;
+
+
                 default:
                     _logger.LogError($"Unhandled method: {method}");
                     break;
@@ -121,9 +132,6 @@ public class SfuConnection
                     case "answer":
                         await ForwardToClientAsync("ReceiveAnswer", resultProp.ToString());
                         break;
-                    // case "offer":
-                    //     await ForwardToClientAsync("ReceiveOffer", sdp);
-                    //     break;
                     default:
                         _logger.LogError($"Unhandled result type: {type}");
                         break;
@@ -235,6 +243,8 @@ public class SfuConnection
             method: "answer",
             parameters: answerParams
         );
+
+        _logger.LogInformation($"Answer: {rpc.ToJson()}");
         // send answer request to sfu
         await SendJsonRpcAsync(rpc.ToJson());
         _logger.LogInformation("Answer sent successfully");

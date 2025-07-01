@@ -66,6 +66,7 @@ public class SignalingHub : Hub
         {
             if (_connections.TryGetValue(Context.ConnectionId, out var sfu))
             {
+                // send offer to sfu
                 await sfu.JoinRoomAsync(roomId, Context.ConnectionId, offer);
                 // set room id for sfu connection
                 sfu.SetRoomId(roomId);
