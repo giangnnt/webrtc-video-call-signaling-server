@@ -7,7 +7,9 @@ public class SignalingHub : Hub
 {
     private readonly ILogger<SignalingHub> _logger;
     private static ConcurrentDictionary<string, SfuConnection> _connections = new();
-    public static ConcurrentDictionary<string, string> _latestPeerJoinedRoom = new();
+
+    private static ConcurrentDictionary<string, string> _peerIdToStreamId = new();
+    private static ConcurrentDictionary<string, string> _streamIdToPeerId = new();
     private readonly IHubContext<SignalingHub> _hubContext;
     public SignalingHub(ILogger<SignalingHub> logger, IHubContext<SignalingHub> hubContext)
     {
@@ -32,6 +34,7 @@ public class SignalingHub : Hub
             _logger.LogInformation($"SFU connected for {Context.ConnectionId}");
             // send connection id to caller
             await Clients.Caller.SendAsync($"ReceiveConnectionId", Context.ConnectionId);
+            await Clients.OthersInGroup(sfu.GetRoomId()).SendAsync("PeerJoined", Context.ConnectionId);
 
             await base.OnConnectedAsync();
         }
@@ -42,12 +45,32 @@ public class SignalingHub : Hub
 
     }
 
+    public void SetStreamPeerId(string streamId)
+    {
+        _streamIdToPeerId.TryAdd(streamId, Context.ConnectionId);
+        _peerIdToStreamId.TryAdd(Context.ConnectionId, streamId);
+    }
+
+    public string GetStreamIdByPeerId(string peerId)
+    {
+        return _peerIdToStreamId[peerId];
+    }
+
+    public string GetPeerIdByStreamId(string streamId)
+    {
+        return _streamIdToPeerId[streamId];
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         try
         {
             if (_connections.TryRemove(Context.ConnectionId, out var sfu))
             {
+                // _peerIdToStreamId.TryRemove(Context.ConnectionId, out var streamId);
+
+                // _streamIdToPeerId.TryRemove(streamId, out _);
+                await Clients.OthersInGroup(sfu.GetRoomId()).SendAsync("PeerDisconnected", Context.ConnectionId);
                 // and dispose ws connection
                 await sfu.CloseAsync();
                 _logger.LogInformation($"SFU connection disposed for {Context.ConnectionId}");
@@ -74,8 +97,6 @@ public class SignalingHub : Hub
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
                 // notify other peers in room that new peer joined
                 await Clients.OthersInGroup(roomId).SendAsync("PeerJoined", Context.ConnectionId);
-                // update latest peer joined room, add if not exists
-                _latestPeerJoinedRoom[roomId] = Context.ConnectionId;
                 _logger.LogInformation("Peer joined room {RoomId} for {ConnectionId}", roomId, Context.ConnectionId);
             }
         }

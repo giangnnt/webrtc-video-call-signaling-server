@@ -37,6 +37,11 @@ public class SfuConnection
         _roomId = roomId;
     }
 
+    public string GetRoomId()
+    {
+        return _roomId;
+    }
+
     public async Task ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         try
