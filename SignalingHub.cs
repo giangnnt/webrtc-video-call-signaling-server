@@ -28,7 +28,7 @@ public class SignalingHub : Hub
             var sfu = new SfuConnection(socket, _logger, _hubContext);
             // set connection id for sfu connection
             sfu.SetConnectionId(Context.ConnectionId);
-            await sfu.ConnectAsync(new Uri("ws://localhost:7000/ws"));
+            await sfu.ConnectAsync(new Uri("ws://35.197.146.171:7000/ws"));
             // add sfu connection to dictionary
             _connections.TryAdd(Context.ConnectionId, sfu);
             _logger.LogInformation($"SFU connected for {Context.ConnectionId}");
@@ -61,16 +61,21 @@ public class SignalingHub : Hub
         return _streamIdToPeerId[streamId];
     }
 
+    public void RemoveStreamPeerId()
+    {
+        _streamIdToPeerId.TryRemove(_peerIdToStreamId[Context.ConnectionId], out _);
+        _peerIdToStreamId.TryRemove(Context.ConnectionId, out _);
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         try
         {
             if (_connections.TryRemove(Context.ConnectionId, out var sfu))
             {
-                // _peerIdToStreamId.TryRemove(Context.ConnectionId, out var streamId);
-
-                // _streamIdToPeerId.TryRemove(streamId, out _);
                 await Clients.OthersInGroup(sfu.GetRoomId()).SendAsync("PeerDisconnected", Context.ConnectionId);
+                Thread.Sleep(1000);
+                RemoveStreamPeerId();
                 // and dispose ws connection
                 await sfu.CloseAsync();
                 _logger.LogInformation($"SFU connection disposed for {Context.ConnectionId}");
