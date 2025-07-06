@@ -7,7 +7,6 @@ public class SignalingHub : Hub
 {
     private readonly ILogger<SignalingHub> _logger;
     private static ConcurrentDictionary<string, SfuConnection> _connections = new();
-
     private static ConcurrentDictionary<string, string> _peerIdToStreamId = new();
     private static ConcurrentDictionary<string, string> _streamIdToPeerId = new();
     private readonly IHubContext<SignalingHub> _hubContext;
@@ -29,13 +28,13 @@ public class SignalingHub : Hub
             // set connection id for sfu connection
             sfu.SetConnectionId(Context.ConnectionId);
             await sfu.ConnectAsync(new Uri("ws://35.197.146.171:7000/ws"));
+            // await sfu.ConnectAsync(new Uri("ws://localhost:7000/ws"));
             // add sfu connection to dictionary
             _connections.TryAdd(Context.ConnectionId, sfu);
             _logger.LogInformation($"SFU connected for {Context.ConnectionId}");
             // send connection id to caller
             await Clients.Caller.SendAsync($"ReceiveConnectionId", Context.ConnectionId);
             await Clients.OthersInGroup(sfu.GetRoomId()).SendAsync("PeerJoined", Context.ConnectionId);
-
             await base.OnConnectedAsync();
         }
         catch (Exception ex)

@@ -15,9 +15,6 @@ public class SfuConnection
     private string _connectionId = string.Empty;
     private string _roomId = string.Empty;
     private readonly IHubContext<SignalingHub> _hubContext;
-
-    private int _iceCount = 0;
-
     private bool isInited = true;
 
     public SfuConnection(ClientWebSocket ws, ILogger logger, IHubContext<SignalingHub> hubContext)
@@ -87,8 +84,6 @@ public class SfuConnection
         }
     }
 
-
-
     private async Task HandleIncomingJsonRpc(string json)
     {
         using var document = JsonDocument.Parse(json);
@@ -101,8 +96,6 @@ public class SfuConnection
             switch (method)
             {
                 case "trickle":
-                    _iceCount++;
-                    _logger.LogInformation($"[ICE] Trickle #{_iceCount}");
                     var trickleParams = root.GetProperty("params");
                     _ = _hubContext.Clients.Client(_connectionId).SendAsync("ReceiveIceCandidate", _connectionId, trickleParams.ToString(), isInited);
 
@@ -111,12 +104,13 @@ public class SfuConnection
                     if (isInited)
                     {
                         isInited = false;
+                        // Thread.Sleep(1000);
                     }
 
-                    var offerParamsElement = root.GetProperty("params");
+                    var offerParams = root.GetProperty("params");
 
                     // Forward to client
-                    await _hubContext.Clients.Client(_connectionId).SendAsync("ReceiveOffer", _connectionId, offerParamsElement.ToString());
+                    await _hubContext.Clients.Client(_connectionId).SendAsync("ReceiveOffer", _connectionId, offerParams.ToString());
                     break;
 
 
